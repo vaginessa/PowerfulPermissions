@@ -2,21 +2,54 @@ package com.stefanosiano.powerfulpermissionsProcessor;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
 
 @SupportedAnnotationTypes("com.stefanosiano.powerfulpermissions.Perms")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class PowerfulPermissionProcessor extends AbstractProcessor {
+
+    private Types typeUtils;
+    private Elements elementUtils;
+    private Filer filer;
+    private Messager messager;
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        typeUtils = processingEnv.getTypeUtils();
+        elementUtils = processingEnv.getElementUtils();
+        filer = processingEnv.getFiler();
+        messager = processingEnv.getMessager();
+    }
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<String> annotations = new LinkedHashSet<String>();
+        annotations.add("com.stefanosiano.powerfulpermissions.Perms");
+        return annotations;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
+    }
+
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
@@ -28,6 +61,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
                 .append("public class Permissions$PowerfulPermission {\n\n") // open class
                 .append("\tpublic static void init(Map map) {\n") // open method
                 .append("\t\tmap.clear();\n\n");
+
 
 
                         // for each javax.lang.model.element.Element annotated with the CustomAnnotation
@@ -65,7 +99,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
 
         try { // write the file
-            JavaFileObject source = processingEnv.getFiler().createSourceFile("com.stefanosiano.powerfulpermissions.Permissions$PowerfulPermission");
+            JavaFileObject source = filer.createSourceFile("com.stefanosiano.powerfulpermissions.Permissions$PowerfulPermission");
 
 
             Writer writer = source.openWriter();
