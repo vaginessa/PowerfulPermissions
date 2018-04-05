@@ -2,7 +2,7 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project (':powerfulpermissions')
+//    implementation project (':powerfulpermissions')
 }
 
 sourceCompatibility = "1.7"
