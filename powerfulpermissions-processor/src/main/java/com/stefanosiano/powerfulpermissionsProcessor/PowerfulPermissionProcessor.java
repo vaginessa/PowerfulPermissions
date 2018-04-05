@@ -1,5 +1,7 @@
 package com.stefanosiano.powerfulpermissionsProcessor;
 
+import com.stefanosiano.powerfulpermissions_annotation.Perms;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedHashSet;
@@ -22,9 +24,12 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-@SupportedAnnotationTypes("com.stefanosiano.powerfulpermissions.Perms")
+import static com.stefanosiano.powerfulpermissionsProcessor.PowerfulPermissionProcessor.annotationName;
+
+@SupportedAnnotationTypes(annotationName)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class PowerfulPermissionProcessor extends AbstractProcessor {
+    public static final String annotationName = "com.stefanosiano.powerfulpermissions_annotation.Perms";
 
     private Types typeUtils;
     private Elements elementUtils;
@@ -43,7 +48,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new LinkedHashSet<String>();
-        annotations.add("com.stefanosiano.powerfulpermissions.Perms");
+        annotations.add(annotationName);
         return annotations;
     }
 
@@ -75,14 +80,13 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             }
 
 
+
             String objectType = element.getSimpleName().toString();
 
+            String methodName = element.
 
-            builder.append("String[] permissions = " + ";\n");
-            builder.append("map.put(\"" + "\", new ContextPermMapping(permissions, " + "methodName" + ", " + atomicInteger.getAndIncrement() + "));\n\n");
-
-                    // this is appending to the return statement
-            builder.append(objectType).append(" says hello!\n");
+            builder.append("String[] permissions = " + "{}" + ";\n");
+            builder.append("map.put(\"" + "\", new ContextPermMapping(permissions, " + "\"methodName\"" + ", " + atomicInteger.getAndIncrement() + "));\n\n");
         }
 
 
