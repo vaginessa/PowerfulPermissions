@@ -15,9 +15,11 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 @SupportedAnnotationTypes("com.stefanosiano.powerfulpermissions.Perms")
@@ -66,6 +68,13 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
                         // for each javax.lang.model.element.Element annotated with the CustomAnnotation
         for (Element element : roundEnvironment.getElementsAnnotatedWith(Perms.class)) {
+
+            if(element.getKind() != ElementKind.METHOD) {
+                messager.printMessage(Diagnostic.Kind.ERROR, "Only methods can be annotated with Perms");
+                return true;
+            }
+
+
             String objectType = element.getSimpleName().toString();
 
 
