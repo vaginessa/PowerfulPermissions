@@ -1,4 +1,9 @@
+//apply plugin: 'com.android.library'
 apply plugin: 'java-library'
+
+//android {
+//    compileSdkVersion 27
+//}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

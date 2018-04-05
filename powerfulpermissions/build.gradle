@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+//apply plugin: 'java-library'
 
 android {
     compileSdkVersion 27
@@ -8,6 +9,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.0'
+//    implementation 'com.android.support:support-v4:27.1.0'
 }
 
 sourceCompatibility = "1.7"

@@ -3,6 +3,7 @@ package com.stefanosiano.powerfulpermissions;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 
@@ -22,7 +23,7 @@ public class Permissions {
     private static void initActivityMap(){
         if(!initialized){
             try {
-                Class permissionPPClass = ClassLoader.getSystemClassLoader().loadClass("Permissions$PowerfulPermission");
+                Class permissionPPClass = ClassLoader.getSystemClassLoader().loadClass("com.stefanosiano.powerfulpermissions.Permissions$PowerfulPermission");
                 permissionPPClass.getDeclaredMethod("init", Map.class).invoke(null, activitiesMap);
                 initialized = true;
             }
@@ -44,11 +45,20 @@ public class Permissions {
 
         if(contextPermMapping == null) throw new RuntimeException("Trying to call a method without permissions in annotation");
 
+
         for (String perm : contextPermMapping.permissions) {
-            if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED)
                 return false;
+        }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (String perm : contextPermMapping.permissions) {
+                if (context.checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED)
+                    return false;
             }
         }
+        else
+            return true;
 
         return true;
     }

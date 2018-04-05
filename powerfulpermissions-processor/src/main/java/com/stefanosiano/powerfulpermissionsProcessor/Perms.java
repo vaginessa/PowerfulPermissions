@@ -1,4 +1,4 @@
-package com.stefanosiano.powerfulpermissions;
+package com.stefanosiano.powerfulpermissionsProcessor;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

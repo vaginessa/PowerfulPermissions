@@ -1,12 +1,10 @@
 package com.stefanosiano.powerfulpermissionssample;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.stefanosiano.powerfulpermissions.Permissions;
-import com.stefanosiano.powerfulpermissions.Perms;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Perms({""})
+    @Perms({"jjj"})
     private void asd(){
         if(!Permissions.check(this)) return;
 
