@@ -16,26 +16,19 @@ public class Permissions {
     static Map<String, SparseArray<ContextPermMapping>> activitiesMap = new HashMap<>();
 
     public static void init() {
-        initialized = false;
         activitiesMap = new HashMap<>();
-    }
-
-    private static void initActivityMap(){
-        if(!initialized){
-            try {
-                Class permissionPPClass = ClassLoader.getSystemClassLoader().loadClass("com.stefanosiano.powerfulpermissions.Permissions$PowerfulPermission");
-                permissionPPClass.getDeclaredMethod("init", Map.class).invoke(null, activitiesMap);
-                initialized = true;
-            }
-            catch (Exception e){
-                new RuntimeException("Unable to initialize the activity-permissions mapping");
-            }
+        try {
+            Class permissionPPClass = ClassLoader.getSystemClassLoader().loadClass("com.stefanosiano.powerfulpermissions.Permissions$PowerfulPermission");
+            permissionPPClass.getDeclaredMethod("init", Map.class).invoke(null, activitiesMap);
+            initialized = true;
+        }
+        catch (Exception e){
+            new RuntimeException("Unable to initialize the activity-permissions mapping");
         }
     }
 
     public static boolean check(Context context){
         initialized = true;
-        initActivityMap();
         SparseArray<ContextPermMapping> contextPermMappings = activitiesMap.get(context.getClass().getName());
 
         if(contextPermMappings == null) throw new RuntimeException("Trying to call a method not annotated");

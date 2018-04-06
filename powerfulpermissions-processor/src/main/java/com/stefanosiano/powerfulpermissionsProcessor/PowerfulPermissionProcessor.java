@@ -30,7 +30,7 @@ import static com.stefanosiano.powerfulpermissionsProcessor.PowerfulPermissionPr
 @SupportedAnnotationTypes(annotationName)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class PowerfulPermissionProcessor extends AbstractProcessor {
-    public static final String annotationName = "com.stefanosiano.powerfulpermissions_annotation.Perms";
+    public static final String annotationName = "com.stefanosiano.powerfulpermissionsAnnotation.Perms";
 
     private Types typeUtils;
     private Elements elementUtils;
@@ -75,7 +75,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
         builder.append("\t\tString[] permissions;\n");
         // for each javax.lang.model.element.Element annotated with the CustomAnnotation
         for (Element element : roundEnvironment.getElementsAnnotatedWith(Perms.class)) {
-            messager.printMessage(Diagnostic.Kind.WARNING, element.toString());
+//            messager.printMessage(Diagnostic.Kind.WARNING, element.toString());
             if(element.getKind() != ElementKind.METHOD) {
                 messager.printMessage(Diagnostic.Kind.ERROR, "Only methods can be annotated with Perms");
                 return true;
@@ -83,8 +83,8 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
             ExecutableElement method = (ExecutableElement) element;
 
-            builder.append("\t\tpermissions = " + "{}" + ";\n");
-            builder.append("map.put(\"" + "\", new ContextPermMapping(permissions, \"" + method.getSimpleName() + "\", " + atomicInteger.getAndIncrement() + "));\n\n");
+            builder.append("\t\tpermissions = new String[]" + "{\"\"}" + ";\n");
+            builder.append("\t\tmap.put(\"" + method.getEnclosingElement().getSimpleName().toString() + "\", new ContextPermMapping(permissions, \"" + method.getSimpleName().toString() + "\", " + atomicInteger.getAndIncrement() + "));\n\n");
         }
 
 
