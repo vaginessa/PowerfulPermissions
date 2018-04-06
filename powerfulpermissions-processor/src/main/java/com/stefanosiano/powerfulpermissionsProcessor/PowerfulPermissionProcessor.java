@@ -80,10 +80,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             }
 
 
-
             String objectType = element.getSimpleName().toString();
-
-            String methodName = element.
 
             builder.append("String[] permissions = " + "{}" + ";\n");
             builder.append("map.put(\"" + "\", new ContextPermMapping(permissions, " + "\"methodName\"" + ", " + atomicInteger.getAndIncrement() + "));\n\n");
