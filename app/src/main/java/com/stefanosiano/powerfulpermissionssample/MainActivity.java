@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.stefanosiano.powerfulpermissions.Permissions;
-import com.stefanosiano.powerfulpermissions_annotation.Perms;
+import com.stefanosiano.powerfulpermissionsAnnotation.Perms;
 
 public class MainActivity extends AppCompatActivity {
 
