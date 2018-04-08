@@ -19,6 +19,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -48,7 +49,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        Set<String> annotations = new LinkedHashSet<String>();
+        Set<String> annotations = new LinkedHashSet<>();
         annotations.add(annotationName);
         return annotations;
     }
@@ -65,52 +66,64 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
         StringBuilder builder = new StringBuilder()
                 .append("package com.stefanosiano.powerfulpermissions;\n\n")
+                .append("import android.util.SparseArray;\n")
+                .append("import com.stefanosiano.powerfulpermissionsAnnotation.PermMapping;\n")
                 .append("import java.util.Map;\n\n")
-                .append("public class Permissions$PowerfulPermission {\n\n") // open class
+                .append("import java.util.HashMap;\n\n")
+                .append("public class Permissions$$PowerfulPermission {\n\n") // open class
                 .append("\tpublic static void init(Map map) {\n") // open method
-                .append("\t\tmap.clear();\n\n");
+                .append("\t\tmap.clear();\n\n")
+                .append("\t\tMap<String, PermMapping> contextPermMappingMap = new HashMap<>();\n\n");
 
 
 
         builder.append("\t\tString[] permissions;\n");
         // for each javax.lang.model.element.Element annotated with the CustomAnnotation
+
+
         for (Element element : roundEnvironment.getElementsAnnotatedWith(Perms.class)) {
-//            messager.printMessage(Diagnostic.Kind.WARNING, element.toString());
+
             if(element.getKind() != ElementKind.METHOD) {
                 messager.printMessage(Diagnostic.Kind.ERROR, "Only methods can be annotated with Perms");
                 return true;
             }
 
             ExecutableElement method = (ExecutableElement) element;
+            while (element.getKind() != ElementKind.CLASS)
+                element = element.getEnclosingElement();
+            TypeElement clazz = (TypeElement) element;
+            PackageElement packageElement = elementUtils.getPackageOf(element);
 
-            builder.append("\t\tpermissions = new String[]" + "{\"\"}" + ";\n");
-            builder.append("\t\tmap.put(\"" + method.getEnclosingElement().getSimpleName().toString() + "\", new ContextPermMapping(permissions, \"" + method.getSimpleName().toString() + "\", " + atomicInteger.getAndIncrement() + "));\n\n");
+
+            int id = atomicInteger.getAndIncrement();
+
+            Perms perms = method.getAnnotation(Perms.class);
+            if(perms == null){
+                messager.printMessage(Diagnostic.Kind.ERROR, "Error getting annotation!");
+                return true;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for(String p : perms.value()) {
+                //todo check manifest permission?
+                sb = sb.append(p).append("\", \"");
+            }
+            String values = sb.substring(0, sb.lastIndexOf(", \""));
+            builder.append("\t\tpermissions = new String[]{\"" + values + "};\n");
+
+            String key = packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "$" + method.getSimpleName();
+            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, \"" + method.getSimpleName() + "\", " + id + "));\n");
+
         }
-
 
         builder.append("\t\treturn;\n\n") // end return
                 .append("\t}\n\n"); // close method
 
-        //add ContextPermMapping class
-        builder.append(
-                "\tpublic static class ContextPermMapping {\n" +
-                "\t\tString[] permissions;\n" +
-                "\t\tString methodName;\n" +
-                "\t\tint methodId;\n" +
-                "\n" +
-                "\t\tpublic ContextPermMapping(String[] permissions, String methodName, int methodId) {\n" +
-                "\t\t\tthis.permissions = permissions;\n" +
-                "\t\t\tthis.methodName = methodName;\n" +
-                "\t\t\tthis.methodId = methodId;\n" +
-                "\t\t}\n" +
-                "\t}"); // close inner class
-
         builder.append("}\n"); // close class
 
 
-
         try { // write the file
-            JavaFileObject source = filer.createSourceFile("com.stefanosiano.powerfulpermissions.Permissions$PowerfulPermission");
+            JavaFileObject source = filer.createSourceFile("com.stefanosiano.powerfulpermissions.Permissions$$PowerfulPermission");
 
 
             Writer writer = source.openWriter();

@@ -5,71 +5,42 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.util.SparseArray;
+
+import com.stefanosiano.powerfulpermissionsAnnotation.PermMapping;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Permissions {
 
-    private static boolean initialized = false;
-    static Map<String, SparseArray<ContextPermMapping>> activitiesMap = new HashMap<>();
+    private final static Map<String, PermMapping> permissionMap = new HashMap<>();
 
     public static void init() {
-        activitiesMap = new HashMap<>();
+        permissionMap.clear();
         try {
-            Class permissionPPClass = ClassLoader.getSystemClassLoader().loadClass("com.stefanosiano.powerfulpermissions.Permissions$PowerfulPermission");
-            permissionPPClass.getDeclaredMethod("init", Map.class).invoke(null, activitiesMap);
-            initialized = true;
+            Class<?> permissionPPClass = Class.forName("com.stefanosiano.powerfulpermissions.Permissions$$PowerfulPermission");
+            permissionPPClass.getDeclaredMethod("init", Map.class).invoke(null, permissionMap);
         }
         catch (Exception e){
-            new RuntimeException("Unable to initialize the activity-permissions mapping");
+            e.printStackTrace();
+            throw new RuntimeException("Unable to initialize the activity-permissions mapping: " + e.getLocalizedMessage());
         }
     }
 
-    public static boolean check(Context context){
-        initialized = true;
-        SparseArray<ContextPermMapping> contextPermMappings = activitiesMap.get(context.getClass().getName());
-
-        if(contextPermMappings == null) throw new RuntimeException("Trying to call a method not annotated");
+    public static boolean askPermissions(Context context){
 
         String methodName = new Throwable().getStackTrace()[1].getMethodName();
-        ContextPermMapping contextPermMapping = ContextPermMappingFinder.findByMethod(methodName, contextPermMappings);
+        PermMapping permMapping = permissionMap.get(context.getClass().getName() + "$" + methodName);
 
-        if(contextPermMapping == null) throw new RuntimeException("Trying to call a method without permissions in annotation");
+        if(permMapping == null) throw new RuntimeException("Unable to find permissions for the method " + methodName);
 
 
-        for (String perm : contextPermMapping.permissions) {
+        for (String perm : permMapping.permissions) {
             if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED)
-                return false;
+                return true;
         }
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            for (String perm : contextPermMapping.permissions) {
-                if (context.checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED)
-                    return false;
-            }
-        }
-        else
-            return true;
-
-        return true;
+        return false;
     }
 
-
-    public static class ContextPermMappingFinder {
-        public static ContextPermMapping findByMethod(String methodName, SparseArray<ContextPermMapping> contextPermMappingSparseArray){
-            for(int i = 0 ; i < contextPermMappingSparseArray.size(); i++){
-                if(contextPermMappingSparseArray.get(i).methodName.equals(methodName))
-                    return contextPermMappingSparseArray.get(i);
-            }
-            return null;
-        }
-    }
-
-    public class ContextPermMapping {
-        String[] permissions;
-        String methodName;
-        int methodId;
-    }
 }

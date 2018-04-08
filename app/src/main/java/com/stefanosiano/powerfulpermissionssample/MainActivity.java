@@ -1,5 +1,6 @@
 package com.stefanosiano.powerfulpermissionssample;
 
+import android.Manifest;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +9,8 @@ import com.stefanosiano.powerfulpermissions.Permissions;
 import com.stefanosiano.powerfulpermissionsAnnotation.Perms;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String[] p = {Manifest.permission.ACCESS_CHECKIN_PROPERTIES, Manifest.permission.ACCESS_FINE_LOCATION};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,9 +21,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Perms({"jjj"})
+    @Perms(Manifest.permission.ACCESS_CHECKIN_PROPERTIES)
     private void asd(){
-        if(!Permissions.check(this)) return;
+        if(Permissions.askPermissions(this)) return;
+
+        Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+    }
+
+
+    @Perms({"jjj2"})
+    private void asd2(){
+        if(Permissions.askPermissions(this)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
