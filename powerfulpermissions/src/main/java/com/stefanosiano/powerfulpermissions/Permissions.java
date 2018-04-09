@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-import com.stefanosiano.powerfulpermissions.annotation.PermMapping;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,7 +67,7 @@ public class Permissions {
         });
     }
 
-    public static boolean askPermissions(Object ob){
+    public static boolean askPermissions(Activity activity, Object ob){
 
         String methodName = new Throwable().getStackTrace()[1].getMethodName();
         PermMapping permMapping = permissionMap.get(ob.getClass().getName() + "$" + methodName);
@@ -84,7 +82,8 @@ public class Permissions {
 
         for (String perm : permMapping.optionalPermissions) {
 
-            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED)
+            //todo fare richiesta su tutte le activity richieste?
+            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED){
 
                 // Permission is not granted
                 // Should we show an explanation?
@@ -97,16 +96,14 @@ public class Permissions {
                 } else {
 
                     // No explanation needed; request the permission
-                    ActivityCompat.requestPermissions(thisActivity,
-                            new String[]{Manifest.permission.READ_CONTACTS},
-                            MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                    ActivityCompat.requestPermissions(thisActivity, perm, permMapping.methodId);
 
                     // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                     // app-defined int constant. The callback method gets the
                     // result of the request.
                 }
-        }
                 return true;
+            }
         }
 
         return false;
