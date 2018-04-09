@@ -1,6 +1,6 @@
-package com.stefanosiano.powerfulpermissionsProcessor;
+package com.stefanosiano.powerfulpermissions.processor;
 
-import com.stefanosiano.powerfulpermissionsAnnotation.Perms;
+import com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -26,12 +26,12 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-import static com.stefanosiano.powerfulpermissionsProcessor.PowerfulPermissionProcessor.annotationName;
+import static com.stefanosiano.powerfulpermissions.processor.PowerfulPermissionProcessor.annotationName;
 
 @SupportedAnnotationTypes(annotationName)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class PowerfulPermissionProcessor extends AbstractProcessor {
-    public static final String annotationName = "com.stefanosiano.powerfulpermissionsAnnotation.Perms";
+    static final String annotationName = "com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions";
 
     private Types typeUtils;
     private Elements elementUtils;
@@ -67,7 +67,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
         StringBuilder builder = new StringBuilder()
                 .append("package com.stefanosiano.powerfulpermissions;\n\n")
                 .append("import android.util.SparseArray;\n")
-                .append("import com.stefanosiano.powerfulpermissionsAnnotation.PermMapping;\n")
+                .append("import com.stefanosiano.powerfulpermissions.PermMapping;\n")
                 .append("import java.util.Map;\n\n")
                 .append("import java.util.HashMap;\n\n")
                 .append("public class Permissions$$PowerfulPermission {\n\n") // open class
@@ -81,10 +81,10 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
         // for each javax.lang.model.element.Element annotated with the CustomAnnotation
 
 
-        for (Element element : roundEnvironment.getElementsAnnotatedWith(Perms.class)) {
+        for (Element element : roundEnvironment.getElementsAnnotatedWith(RequiresPermissions.class)) {
 
             if(element.getKind() != ElementKind.METHOD) {
-                messager.printMessage(Diagnostic.Kind.ERROR, "Only methods can be annotated with Perms");
+                messager.printMessage(Diagnostic.Kind.ERROR, "Only methods can be annotated with RequiresPermissions");
                 return true;
             }
 
@@ -97,14 +97,14 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
             int id = atomicInteger.getAndIncrement();
 
-            Perms perms = method.getAnnotation(Perms.class);
-            if(perms == null){
+            RequiresPermissions annotation = method.getAnnotation(RequiresPermissions.class);
+            if(annotation == null){
                 messager.printMessage(Diagnostic.Kind.ERROR, "Error getting annotation!");
                 return true;
             }
 
             StringBuilder sb = new StringBuilder();
-            for(String p : perms.value()) {
+            for(String p : annotation.value()) {
                 //todo check manifest permission?
                 sb = sb.append(p).append("\", \"");
             }

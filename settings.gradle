@@ -1,1 +1,1 @@
-include ':app', ':powerfulpermissions', ':powerfulpermissions-processor', ':powerfulpermissions-annotation'
+include ':app', ':powerfulpermissions', ':powerfulpermissions-processor'

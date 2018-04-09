@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.stefanosiano.powerfulpermissions.Permissions;
-import com.stefanosiano.powerfulpermissionsAnnotation.Perms;
+import com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Perms(Manifest.permission.ACCESS_CHECKIN_PROPERTIES)
+    @RequiresPermissions(Manifest.permission.ACCESS_CHECKIN_PROPERTIES)
     private void asd(){
         if(Permissions.askPermissions(this)) return;
 
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Perms({"jjj2"})
+    @RequiresPermissions({"jjj2"})
     private void asd2(){
         if(Permissions.askPermissions(this)) return;
 

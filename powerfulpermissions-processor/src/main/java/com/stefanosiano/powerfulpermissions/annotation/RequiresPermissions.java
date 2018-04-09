@@ -1,4 +1,4 @@
-package com.stefanosiano.powerfulpermissionsAnnotation;
+package com.stefanosiano.powerfulpermissions.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Perms {
+public @interface RequiresPermissions {
     String[] value();
 }
 

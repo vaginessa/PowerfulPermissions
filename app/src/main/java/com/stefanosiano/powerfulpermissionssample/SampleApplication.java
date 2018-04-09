@@ -10,6 +10,6 @@ public class SampleApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Permissions.init();
+        Permissions.init(this);
     }
 }
