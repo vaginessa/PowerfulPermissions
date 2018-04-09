@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @RequiresPermissions(Manifest.permission.ACCESS_CHECKIN_PROPERTIES)
+    @RequiresPermissions(value = Manifest.permission.ACCESS_CHECKIN_PROPERTIES, optional = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
         if(Permissions.askPermissions(this)) return;
 

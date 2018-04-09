@@ -1,8 +1,12 @@
 package com.stefanosiano.powerfulpermissions;
 
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.stefanosiano.powerfulpermissions.annotation.PermMapping;
@@ -15,8 +19,8 @@ public class Permissions {
     private static Context appContext;
     private final static Map<String, PermMapping> permissionMap = new HashMap<>();
 
-    public static void init(Context context) {
-        appContext = context.getApplicationContext();
+    public static void init(Application application) {
+        appContext = application.getApplicationContext();
         permissionMap.clear();
         try {
             Class<?> permissionPPClass = Class.forName("com.stefanosiano.powerfulpermissions.Permissions$$PowerfulPermission");
@@ -26,6 +30,43 @@ public class Permissions {
             e.printStackTrace();
             throw new RuntimeException("Unable to initialize the activity-permissions mapping: " + e.getLocalizedMessage());
         }
+
+        application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
     }
 
     public static boolean askPermissions(Object ob){
@@ -38,6 +79,33 @@ public class Permissions {
 
         for (String perm : permMapping.permissions) {
             if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED)
+                return true;
+        }
+
+        for (String perm : permMapping.optionalPermissions) {
+
+            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED)
+
+                // Permission is not granted
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, perm)) {
+
+                    // Show an explanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    // sees the explanation, try again to request the permission.
+
+                } else {
+
+                    // No explanation needed; request the permission
+                    ActivityCompat.requestPermissions(thisActivity,
+                            new String[]{Manifest.permission.READ_CONTACTS},
+                            MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                    // app-defined int constant. The callback method gets the
+                    // result of the request.
+                }
+        }
                 return true;
         }
 

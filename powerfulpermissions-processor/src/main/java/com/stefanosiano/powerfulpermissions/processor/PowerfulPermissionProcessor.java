@@ -72,12 +72,12 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
                 .append("import java.util.HashMap;\n\n")
                 .append("public class Permissions$$PowerfulPermission {\n\n") // open class
                 .append("\tpublic static void init(Map map) {\n") // open method
-                .append("\t\tmap.clear();\n\n")
-                .append("\t\tMap<String, PermMapping> contextPermMappingMap = new HashMap<>();\n\n");
+                .append("\t\tmap.clear();\n\n");
 
 
 
         builder.append("\t\tString[] permissions;\n");
+        builder.append("\t\tString[] optionalPermissions;\n");
         // for each javax.lang.model.element.Element annotated with the CustomAnnotation
 
 
@@ -104,15 +104,22 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             }
 
             StringBuilder sb = new StringBuilder();
+            StringBuilder sbOp = new StringBuilder();
             for(String p : annotation.value()) {
                 //todo check manifest permission?
                 sb = sb.append(p).append("\", \"");
             }
+            for(String p : annotation.value()) {
+                //todo check manifest permission?
+                sbOp = sbOp.append(p).append("\", \"");
+            }
             String values = sb.substring(0, sb.lastIndexOf(", \""));
+            String valuesOp = sbOp.substring(0, sbOp.lastIndexOf(", \""));
             builder.append("\t\tpermissions = new String[]{\"" + values + "};\n");
+            builder.append("\t\toptionalPermissions = new String[]{\"" + valuesOp + "};\n");
 
             String key = packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "$" + method.getSimpleName();
-            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, \"" + method.getSimpleName() + "\", " + id + "));\n");
+            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", " + id + "));\n");
 
         }
 
