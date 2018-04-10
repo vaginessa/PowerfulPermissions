@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -30,51 +31,18 @@ public class Permissions {
             e.printStackTrace();
             throw new RuntimeException("Unable to initialize the activity-permissions mapping: " + e.getLocalizedMessage());
         }
-
-        application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
-            }
-
-            @Override
-            public void onActivityStarted(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityResumed(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityPaused(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityStopped(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-
-            }
-
-            @Override
-            public void onActivityDestroyed(Activity activity) {
-
-            }
-        });
     }
 
-    public static boolean askPermissions(Object ob){
+    public static boolean askPermissions(Object ob) {
+    }
 
-        String methodName = new Throwable().getStackTrace()[1].getMethodName();
-        PermMapping permMapping = permissionMap.get(ob.getClass().getName() + "$" + methodName);
+    public static boolean askPermissions(int id, Object ob){
 
-        if(permMapping == null) throw new RuntimeException("Unable to find permissions for the method " + methodName);
+//        String methodName = new Throwable().getStackTrace()[1].getMethodName();
+        PermMapping permMapping = permissionMap.get(ob.getClass().getName() + "$" + id);
+
+//        if(permMapping == null) throw new RuntimeException("Unable to find permissions for the method " + methodName);
+        if(permMapping == null) throw new RuntimeException("Unable to find permissions!");
 
 
         for (String perm : permMapping.permissions) {
@@ -84,7 +52,7 @@ public class Permissions {
 
         for (String perm : permMapping.optionalPermissions) {
 
-            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED)
+            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED){
 
                 // Permission is not granted
                 // Should we show an explanation?
@@ -98,18 +66,25 @@ public class Permissions {
 
                     // No explanation needed; request the permission
                     ActivityCompat.requestPermissions(thisActivity,
-                            new String[]{Manifest.permission.READ_CONTACTS},
+                            perm,
                             MY_PERMISSIONS_REQUEST_READ_CONTACTS);
 
                     // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                     // app-defined int constant. The callback method gets the
                     // result of the request.
                 }
-        }
                 return true;
+            }
         }
 
         return false;
+    }
+
+
+
+    public static void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        Object ob;
+        ob.getClass().getMethod("asd", String.class).invoke(ob, "s");
     }
 
 }

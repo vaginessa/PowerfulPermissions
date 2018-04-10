@@ -1,6 +1,7 @@
 package com.stefanosiano.powerfulpermissionssample;
 
 import android.Manifest;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,21 +22,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @RequiresPermissions(value = Manifest.permission.ACCESS_CHECKIN_PROPERTIES, optional = Manifest.permission.ACCESS_COARSE_LOCATION)
+    @RequiresPermissions(value = 1, required = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
-        if(Permissions.askPermissions(this)) return;
+        if(Permissions.askPermissions(1, this)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
 
 
-    @RequiresPermissions({"jjj2"})
+    @RequiresPermissions(value = 3, required = {"jhjj"})
     private void asd2(){
-        if(Permissions.askPermissions(this)) return;
+        if(Permissions.askPermissions(3, this)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
-/*
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Permissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    /*
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

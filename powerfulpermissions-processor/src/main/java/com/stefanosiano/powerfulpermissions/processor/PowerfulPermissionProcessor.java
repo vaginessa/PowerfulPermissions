@@ -33,6 +33,7 @@ import static com.stefanosiano.powerfulpermissions.processor.PowerfulPermissionP
 public class PowerfulPermissionProcessor extends AbstractProcessor {
     static final String annotationName = "com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions";
 
+    private Set<String> ids;
     private Types typeUtils;
     private Elements elementUtils;
     private Filer filer;
@@ -62,7 +63,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-        AtomicInteger atomicInteger = new AtomicInteger(0);
+        ids = new LinkedHashSet<>();
 
         StringBuilder builder = new StringBuilder()
                 .append("package com.stefanosiano.powerfulpermissions;\n\n")
@@ -95,21 +96,31 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             PackageElement packageElement = elementUtils.getPackageOf(element);
 
 
-            int id = atomicInteger.getAndIncrement();
-
             RequiresPermissions annotation = method.getAnnotation(RequiresPermissions.class);
             if(annotation == null){
                 messager.printMessage(Diagnostic.Kind.ERROR, "Error getting annotation!");
                 return true;
             }
 
+
+            String key = packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "$" + annotation.value();
+
+            // check if same id was used multiple times
+            if(ids.contains(key)){
+                messager.printMessage(Diagnostic.Kind.ERROR, "The same id (" + annotation.value() + "was used multiple times in " + packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "!");
+                return true;
+            }
+            ids.add(key);
+
+
+            //todo parameters of functions! (1 funzione vuole un permesso e l'altra un altro :/)
             StringBuilder sb = new StringBuilder();
             StringBuilder sbOp = new StringBuilder();
-            for(String p : annotation.value()) {
+            for(String p : annotation.required()) {
                 //todo check manifest permission?
                 sb = sb.append(p).append("\", \"");
             }
-            for(String p : annotation.value()) {
+            for(String p : annotation.optional()) {
                 //todo check manifest permission?
                 sbOp = sbOp.append(p).append("\", \"");
             }
@@ -117,8 +128,6 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             String valuesOp = sbOp.substring(0, sbOp.lastIndexOf(", \""));
             builder.append("\t\tpermissions = new String[]{\"" + values + "};\n");
             builder.append("\t\toptionalPermissions = new String[]{\"" + valuesOp + "};\n");
-
-            String key = packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "$" + method.getSimpleName();
             builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", " + id + "));\n");
 
         }
