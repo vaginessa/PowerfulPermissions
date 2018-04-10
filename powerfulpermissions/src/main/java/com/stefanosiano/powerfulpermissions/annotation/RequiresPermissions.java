@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface RequiresPermissions {
-    int value();
+    int requestCode();
     String[] required();
     String[] optional() default "";
 }

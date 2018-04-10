@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -103,11 +102,11 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             }
 
 
-            String key = packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "$" + annotation.value();
+            String key = packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "$" + annotation.requestCode();
 
             // check if same id was used multiple times
             if(ids.contains(key)){
-                messager.printMessage(Diagnostic.Kind.ERROR, "The same id (" + annotation.value() + "was used multiple times in " + packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "!");
+                messager.printMessage(Diagnostic.Kind.ERROR, "The same id (" + annotation.requestCode() + "was used multiple times in " + packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "!");
                 return true;
             }
             ids.add(key);
@@ -128,7 +127,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             String valuesOp = sbOp.substring(0, sbOp.lastIndexOf(", \""));
             builder.append("\t\tpermissions = new String[]{\"" + values + "};\n");
             builder.append("\t\toptionalPermissions = new String[]{\"" + valuesOp + "};\n");
-            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", " + id + "));\n");
+            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", " + annotation.requestCode() + "));\n");
 
         }
 

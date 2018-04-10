@@ -11,7 +11,9 @@ import android.support.v4.content.ContextCompat;
 
 import com.stefanosiano.powerfulpermissions.PermMapping;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Permissions {
@@ -37,9 +39,9 @@ public class Permissions {
     }
 
     public static boolean askPermissions(int id, Object ob){
-        return askPermissions(id, ob, null);
+        return askPermissions(id, null, ob, null);
     }
-    public static boolean askPermissions(int id, Object ob, Runnable onPermissionDenied){
+    public static boolean askPermissions(int id, Activity activity, Object ob, Runnable onPermissionDenied){
 
 //        String methodName = new Throwable().getStackTrace()[1].getMethodName();
         PermMapping permMapping = permissionMap.get(ob.getClass().getName() + "$" + id);
@@ -48,38 +50,45 @@ public class Permissions {
         if(permMapping == null) throw new RuntimeException("Unable to find permissions!");
 
 
+        List<String> permissionsToAsk = new ArrayList<>();
+
         for (String perm : permMapping.permissions) {
-            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED)
+
+            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED){
+
+                // Permission is not granted. Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
+
+                } else {
+                    permissionsToAsk.add(perm);
+                    // No explanation needed; request the permission
+                }
                 return true;
+            }
+
+            return true;
         }
 
         for (String perm : permMapping.optionalPermissions) {
 
             if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED){
 
-                // Permission is not granted
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, perm)) {
-
-                    // Show an explanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
+                // Permission is not granted. Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
 
                 } else {
-
                     // No explanation needed; request the permission
-                    ActivityCompat.requestPermissions(thisActivity,
-                            perm,
-                            MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                    // app-defined int constant. The callback method gets the
-                    // result of the request.
+                    ActivityCompat.requestPermissions(activity, perm, id);
                 }
                 return true;
             }
+
         }
-        }
+
+        String[] permissionsToAskArray = new String[permissionsToAsk.size()];
+        for(int i = 0; i < permissionsToAskArray.length; i++)
+            permissionsToAskArray[i] = permissionsToAsk.get(i);
+        ActivityCompat.requestPermissions(activity, permissionsToAskArray, id);
 
         return false;
     }

@@ -7,6 +7,6 @@ import com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions;
 
 public class Test2 {
 
-    @RequiresPermissions({Manifest.permission.ACCESS_CHECKIN_PROPERTIES, Manifest.permission.ACCESS_FINE_LOCATION})
+    @RequiresPermissions(requestCode = {Manifest.permission.ACCESS_CHECKIN_PROPERTIES, Manifest.permission.ACCESS_FINE_LOCATION})
     public void a2e3(){}
 }
