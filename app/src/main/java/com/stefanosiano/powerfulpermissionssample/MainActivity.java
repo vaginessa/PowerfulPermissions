@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @RequiresPermissions(requestCode = 3, required = {"jhjj"})
+    @RequiresPermissions(requestCode = 3, required = {"jhjj"}, optional = "", )
     private void asd2(){
         if(Permissions.askPermissions(3, this, this)) return;
 
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Permissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Permissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
     }
 
     /*

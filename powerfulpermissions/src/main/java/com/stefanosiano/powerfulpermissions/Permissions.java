@@ -5,11 +5,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-
-import com.stefanosiano.powerfulpermissions.PermMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,90 +31,100 @@ public class Permissions {
         }
     }
 
-    public static boolean askPermissions(Object ob) {
-        return askPermissions(0, ob);
-    }
-
     public static boolean askPermissions(int id, Object ob){
         return askPermissions(id, null, ob, null);
     }
     public static boolean askPermissions(int id, Activity activity, Object ob, Runnable onPermissionDenied){
 
-//        String methodName = new Throwable().getStackTrace()[1].getMethodName();
         PermMapping permMapping = permissionMap.get(ob.getClass().getName() + "$" + id);
 
-//        if(permMapping == null) throw new RuntimeException("Unable to find permissions for the method " + methodName);
         if(permMapping == null) throw new RuntimeException("Unable to find permissions!");
 
-
         List<String> permissionsToAsk = new ArrayList<>();
+        List<String> permissionsToRationale = new ArrayList<>();
 
-        for (String perm : permMapping.permissions) {
+        String[] permissions = mergeArrays(permMapping.permissions, permMapping.optionalPermissions);
+
+        for (String perm : permissions) {
 
             if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED){
 
                 // Permission is not granted. Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
-
-                } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm))
+                    permissionsToRationale.add(perm);
+                // No explanation needed; request the permission
+                else
                     permissionsToAsk.add(perm);
-                    // No explanation needed; request the permission
-                }
-                return true;
             }
+        }
 
+        if(permissionsToRationale.size() > 0){
+            //todo show rationale!
             return true;
         }
-
-        for (String perm : permMapping.optionalPermissions) {
-
-            if (ContextCompat.checkSelfPermission(appContext, perm) != PackageManager.PERMISSION_GRANTED){
-
-                // Permission is not granted. Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
-
-                } else {
-                    // No explanation needed; request the permission
-                    ActivityCompat.requestPermissions(activity, perm, id);
-                }
-                return true;
-            }
-
+        if(permissionsToAsk.size() > 0) {
+            ActivityCompat.requestPermissions(activity, listToArray(permissionsToAsk), id);
+            return true;
         }
-
-        String[] permissionsToAskArray = new String[permissionsToAsk.size()];
-        for(int i = 0; i < permissionsToAskArray.length; i++)
-            permissionsToAskArray[i] = permissionsToAsk.get(i);
-        ActivityCompat.requestPermissions(activity, permissionsToAskArray, id);
 
         return false;
     }
 
 
 
-    public static void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+    public static void onRequestPermissionsResult(Activity activity, int requestCode, String[] permissions, int[] grantResults){
         Object ob;
         ob.getClass().getMethod("asd", String.class).invoke(ob, "s");
 
-        if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-            // user rejected the permission
-            boolean showRationale = shouldShowRequestPermissionRationale( permission );
-            if (! showRationale) {
-                // user also CHECKED "never ask again"
-                // you can either enable some fall back,
-                // disable features of your app
-                // or open another dialog explaining
-                // again the permission and directing to
-                // the app setting
-            } else if (Manifest.permission.WRITE_CONTACTS.equals(permission)) {
-                showRationale(permission, R.string.permission_denied_contacts);
-                // user did NOT check "never ask again"
-                // this is a good place to explain the user
-                // why you need the permission and ask if he wants
-                // to accept it (the rationale)
-            } else if ( /* possibly check more permissions...*/ ) {
+        for (int i = 0; i < permissions.length; i++) {
+            String permission = permissions[i];
+            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                // user rejected the permission
+                boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
+                if (!showRationale) {
+                    // user also CHECKED "never ask again"
+                    // you can either enable some fall back,
+                    // disable features of your app
+                    // or open another dialog explaining
+                    // again the permission and directing to
+                    // the app setting
+                } else if (Manifest.permission.WRITE_CONTACTS.equals(permission)) {
+                    showRationale(permission, R.string.permission_denied_contacts);
+                    // user did NOT check "never ask again"
+                    // this is a good place to explain the user
+                    // why you need the permission and ask if he wants
+                    // to accept it (the rationale)
+                } else if ( /* possibly check more permissions...*/) {
+                }
             }
         }
     }
 
+
+    private static String[] listToArray(List<String> list){
+        if(list == null)
+            return null;
+        String[] strings = new String[list.size()];
+        for(int i = 0; i < strings.length; i++)
+            strings[i] = list.get(i);
+        return strings;
+    }
+
+
+    private static String[] mergeArrays(String[] array1, String[] array2){
+        if(array1 == null && array2 == null)
+            return null;
+
+        if(array1 == null) array1 = new String[0];
+        if(array2 == null) array2 = new String[0];
+
+        int max = array1.length + array2.length;
+
+        String[] strings = new String[max];
+
+        System.arraycopy(array1, 0, strings, 0, array1.length);
+        System.arraycopy(array2, 0, strings, array1.length, array1.length+array2.length);
+
+        return strings;
+    }
 }
