@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(value = 1, required = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
-        if(Permissions.askPermissions(1, this)) return;
+        if(Permissions.askPermissions(1, this, this::asd)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
