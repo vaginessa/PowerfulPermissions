@@ -106,7 +106,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
             // check if same id was used multiple times
             if(ids.contains(key)){
-                messager.printMessage(Diagnostic.Kind.ERROR, "The same id (" + annotation.requestCode() + "was used multiple times in " + packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "!");
+                messager.printMessage(Diagnostic.Kind.ERROR, "The same requestCode (" + annotation.requestCode() + "was used multiple times! (" + packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "!");
                 return true;
             }
             ids.add(key);

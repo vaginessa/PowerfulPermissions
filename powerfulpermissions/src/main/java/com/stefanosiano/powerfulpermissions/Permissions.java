@@ -43,16 +43,16 @@ public class Permissions {
 
 
     public static boolean askPermissions(final int requestCode, final Activity activity, final Object ob, final Runnable onPermissionGranted, final Runnable onPermissionDenied){
-        return askPermissions(requestCode, activity, ob.getClass(), ob, onPermissionGranted, onPermissionDenied);
+        return askPermissions(requestCode, activity, onPermissionGranted, onPermissionDenied);
     }
 
     public static boolean askPermissions(final int requestCode, final Activity activity, final Class clazz, final Runnable onPermissionGranted, final Runnable onPermissionDenied){
-        return askPermissions(requestCode, activity, clazz, null, onPermissionGranted, onPermissionDenied);
+        return askPermissions(requestCode, activity, onPermissionGranted, onPermissionDenied);
     }
 
-    private static boolean askPermissions(final int requestCode, final Activity activity, final Class clazz, final Object ob, final Runnable onPermissionGranted, final Runnable onPermissionDenied){
+    private static boolean askPermissions(final int requestCode, final Activity activity, final Runnable onPermissionGranted, final Runnable onPermissionDenied){
 
-        final PermMapping permMapping = permissionMap.get(clazz.getName() + "$" + requestCode);
+        final PermMapping permMapping = permissionMap.get(requestCode);
 
         if(permMapping == null) throw new RuntimeException("Unable to find permissions!");
 
