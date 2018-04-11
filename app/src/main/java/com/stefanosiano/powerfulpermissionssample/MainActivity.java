@@ -24,15 +24,15 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 1, required = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
-        if(Permissions.askPermissions(1, this, this, this::asd)) return;
+        if(Permissions.askPermissions(1, this, this, this::asd, this::asd)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
 
 
-    @RequiresPermissions(requestCode = 3, required = {"jhjj"}, optional = "", )
+    @RequiresPermissions(requestCode = 3, required = {"jhjj"}, optional = "")
     private void asd2(){
-        if(Permissions.askPermissions(3, this, this)) return;
+        if(Permissions.askPermissions(3, this, this, this::asd2, this::asd2)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }

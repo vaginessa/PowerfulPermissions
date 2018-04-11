@@ -127,7 +127,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             String valuesOp = sbOp.substring(0, sbOp.lastIndexOf(", \""));
             builder.append("\t\tpermissions = new String[]{\"" + values + "};\n");
             builder.append("\t\toptionalPermissions = new String[]{\"" + valuesOp + "};\n");
-            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", " + annotation.requestCode() + "));\n");
+            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", \"" + key + "\", " + annotation.requestCode() + "));\n");
 
         }
 
