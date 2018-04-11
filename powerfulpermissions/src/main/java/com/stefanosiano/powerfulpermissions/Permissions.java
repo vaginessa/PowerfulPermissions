@@ -52,18 +52,7 @@ public class Permissions {
 
     private static boolean askPermissions(final int requestCode, final Activity activity, final Class clazz, final Object ob, final Runnable onPermissionGranted, final Runnable onPermissionDenied){
 
-//        RequiresPermissions annotation;
-//        int id = annotation.id;
-        for(Method m : clazz.getDeclaredMethods())
-            for(Annotation ann : m.getDeclaredAnnotations()){
-                if(ann.annotationType().equals(RequiresPermissions.class)){
-                    //try with this!
-                    Log.e("ASD", ((RequiresPermissions)ann).id+"");
-                }
-            }
-//        new Exception().getStackTrace()[1].getClassName();
         final PermMapping permMapping = permissionMap.get(clazz.getName() + "$" + requestCode);
-//        final PermMapping permMapping = permissionMap.get(new Exception().getStackTrace()[2].getClassName() + "$" + requestCode);
 
         if(permMapping == null) throw new RuntimeException("Unable to find permissions!");
 
