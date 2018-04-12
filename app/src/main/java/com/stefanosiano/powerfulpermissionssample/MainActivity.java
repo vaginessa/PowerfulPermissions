@@ -1,6 +1,7 @@
 package com.stefanosiano.powerfulpermissionssample;
 
 import android.Manifest;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,13 +19,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        asd();
+        readFile(Environment.DIRECTORY_DOWNLOADS);
+    }
+
+
+    @RequiresPermissions(requestCode = 2, required = Manifest.permission.READ_EXTERNAL_STORAGE)
+    private void readFile(String path){
+        if(Permissions.askPermissions(2, this, ()->readFile(path), this::onReadFilePermissionDenied)) return;
+
+        Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: " + path);
+    }
+
+    private void onReadFilePermissionDenied(){
+        Log.e("ASD", "NUOOOOOOOOOOOOOOOOOOO");
     }
 
 
     @RequiresPermissions(requestCode = 1, required = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
-        if(Permissions.askPermissions(1, this, this.getClass(), this::asd, this::asd)) return;
+        if(Permissions.askPermissions(1, this, this::asd, this::asd)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
@@ -32,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 3, required = {"jhjj"}, optional = "")
     private void asd2(){
-        if(Permissions.askPermissions(3, this, this, this::asd2, this::asd2)) return;
+        if(Permissions.askPermissions(3, this,  this::asd2, this::asd2)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }

@@ -4,14 +4,14 @@ public class PermMapping {
     public String[] permissions;
     public String[] optionalPermissions;
     public String methodName;
-    public String key;
+    public int requestCode;
     public int methodId;
 
-    public PermMapping(String[] permissions, String[] optionalPermissions, String methodName, String key, int methodId) {
+    public PermMapping(String[] permissions, String[] optionalPermissions, String methodName, int requestCode, int methodId) {
         this.permissions = permissions;
         this.optionalPermissions = optionalPermissions;
         this.methodName = methodName;
-        this.key = key;
+        this.requestCode = requestCode;
         this.methodId = methodId;
     }
 }

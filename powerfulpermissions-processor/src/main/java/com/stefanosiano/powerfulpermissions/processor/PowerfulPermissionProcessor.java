@@ -4,7 +4,9 @@ import com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -32,7 +34,7 @@ import static com.stefanosiano.powerfulpermissions.processor.PowerfulPermissionP
 public class PowerfulPermissionProcessor extends AbstractProcessor {
     static final String annotationName = "com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions";
 
-    private Set<String> ids;
+    private Map<Integer, String> requestCodes;
     private Types typeUtils;
     private Elements elementUtils;
     private Filer filer;
@@ -62,17 +64,15 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-        ids = new LinkedHashSet<>();
+        requestCodes = new HashMap<>();
 
         StringBuilder builder = new StringBuilder()
                 .append("package com.stefanosiano.powerfulpermissions;\n\n")
                 .append("import android.util.SparseArray;\n")
-                .append("import com.stefanosiano.powerfulpermissions.PermMapping;\n")
-                .append("import java.util.Map;\n\n")
-                .append("import java.util.HashMap;\n\n")
+                .append("import com.stefanosiano.powerfulpermissions.PermMapping;\n\n")
                 .append("public class Permissions$$PowerfulPermission {\n\n") // open class
-                .append("\tpublic static void init(Map map) {\n") // open method
-                .append("\t\tmap.clear();\n\n");
+                .append("\tpublic static void init(SparseArray sparseArray) {\n") // open method
+                .append("\t\tsparseArray.clear();\n\n");
 
 
 
@@ -102,17 +102,17 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             }
 
 
-            String key = packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "$" + annotation.requestCode();
+            int requestCode = annotation.requestCode();
+            String className = packageElement.getQualifiedName() + "." + clazz.getSimpleName();
 
             // check if same id was used multiple times
-            if(ids.contains(key)){
-                messager.printMessage(Diagnostic.Kind.ERROR, "The same requestCode (" + annotation.requestCode() + "was used multiple times! (" + packageElement.getQualifiedName() + "." + clazz.getSimpleName() + "!");
+            if(requestCodes.containsKey(requestCode)){
+                messager.printMessage(Diagnostic.Kind.ERROR, "The same requestCode (" + requestCode + ") was used multiple times! (" + className + ", " + requestCodes.get(requestCode) + ")");
                 return true;
             }
-            ids.add(key);
+            requestCodes.put(requestCode, className);
 
 
-            //todo parameters of functions! (1 funzione vuole un permesso e l'altra un altro :/)
             StringBuilder sb = new StringBuilder();
             StringBuilder sbOp = new StringBuilder();
             for(String p : annotation.required()) {
@@ -127,7 +127,7 @@ public class PowerfulPermissionProcessor extends AbstractProcessor {
             String valuesOp = sbOp.substring(0, sbOp.lastIndexOf(", \""));
             builder.append("\t\tpermissions = new String[]{\"" + values + "};\n");
             builder.append("\t\toptionalPermissions = new String[]{\"" + valuesOp + "};\n");
-            builder.append("\t\tmap.put(\"" + key + "\", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", \"" + key + "\", " + annotation.requestCode() + "));\n");
+            builder.append("\t\tsparseArray.put(" + requestCode + ", new PermMapping(permissions, optionalPermissions, \"" + method.getSimpleName() + "\", " + requestCode + ", " + annotation.requestCode() + "));\n");
 
         }
 
