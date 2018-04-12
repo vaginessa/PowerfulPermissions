@@ -37,7 +37,7 @@ public class Permissions {
     }
 
 
-    public static boolean askPermissions(final int requestCode, final Activity activity, final Runnable onPermissionGranted, final Runnable onPermissionDenied){
+    public static boolean askPermissions(final int requestCode, final Activity activity, final Runnable onPermissionGranted, final PermissionDeniedListener onPermissionDenied){
 
         final PermMapping permMapping = permissionMap.get(requestCode);
 
@@ -86,7 +86,7 @@ public class Permissions {
     }
 
 
-    private static void requestPermission(Activity activity, String[] permissions, PermMapping permMapping, final Runnable onPermissionGranted, final Runnable onPermissionDenied){
+    private static void requestPermission(Activity activity, String[] permissions, PermMapping permMapping, final Runnable onPermissionGranted, final PermissionDeniedListener onPermissionDenied){
         helperArray.put(permMapping.requestCode, new PermissionHelper(permMapping, onPermissionGranted, onPermissionDenied));
         ActivityCompat.requestPermissions(activity, permissions, permMapping.methodId);
     }
@@ -99,9 +99,13 @@ public class Permissions {
         final PermMapping permMapping = permissionHelper.permMapping;
         if(permMapping == null) return false;
 
-        boolean showOnpermissionGranted = true;
+        boolean shouldShowRationale = false;
+        boolean shouldRunDenied = false;
+
         List<String> permRequested = Arrays.asList(permMapping.permissions);
         List<String> permOptional = Arrays.asList(permMapping.optionalPermissions);
+
+        List<String> deniedPermissions = new ArrayList<>();
 
         for (int i = 0; i < permissions.length; i++) {
             String permission = permissions[i];
@@ -110,37 +114,41 @@ public class Permissions {
 
                 //permission is needed
                 if(permRequested.contains(permission)) {
-                    showOnpermissionGranted = false;
 
                     boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
                     if (showRationale) {
                         // user did NOT check "never ask again": explain why you need the permission and ask if user wants to accept it
-                        showRationale(permission, R.string.permission_denied_contacts);
-//                        ActivityCompat.requestPermissions(activity, permissions, permMapping.methodId);
+                        shouldShowRationale = true;
                     } else {
                         // user also CHECKED "never ask again": open another dialog explaining again the permission and directing to the app setting
-                        permissionHelper.onPermissionDenied.run();
+                        shouldRunDenied = true;
                     }
                 }
 
                 //permission is optional
-                if(permOptional.contains(permission)) {
-                    showOnpermissionGranted = false;
+                else if(permOptional.contains(permission)) {
 
                     boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
                     if (showRationale) {
                         // user did NOT check "never ask again": explain why you need the permission and ask if user wants to accept it
-                        showRationale(permission, R.string.permission_denied_contacts);
+                        shouldShowRationale = true;
                     } else {
                         // user also CHECKED "never ask again", but permission is optional, so function can be called anyway
-                        permissionHelper.onPermissionGranted.run();
                     }
                 }
             }
-            else {
-
-            }
         }
+
+        if(shouldRunDenied) {
+            permissionHelper.onPermissionDenied.onPermissionsDenied(listToArray(deniedPermissions));
+            return true;
+        }
+        if(shouldShowRationale) {
+            return true;
+        }
+
+        permissionHelper.onPermissionGranted.run();
+        return true;
     }
 
 
@@ -167,5 +175,10 @@ public class Permissions {
         for(String s : array2) if(!TextUtils.isEmpty(s) && !strings.contains(s)) strings.add(s);
 
         return listToArray(strings);
+    }
+
+
+    public interface PermissionDeniedListener{
+        void onPermissionsDenied(String[] permissions);
     }
 }
