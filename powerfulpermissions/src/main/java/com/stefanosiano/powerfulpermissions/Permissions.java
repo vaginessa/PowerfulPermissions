@@ -144,6 +144,7 @@ public class Permissions {
             return true;
         }
         if(shouldShowRationale) {
+            permissionHelper.onShowRationale.onShowRationale(listToArray(deniedPermissions));
             return true;
         }
 
@@ -180,5 +181,10 @@ public class Permissions {
 
     public interface PermissionDeniedListener{
         void onPermissionsDenied(String[] permissions);
+    }
+
+
+    public interface ShowRationaleListener{
+        void onShowRationale(String[] permissions);
     }
 }
