@@ -30,14 +30,14 @@ public class MainActivity extends AppCompatActivity {
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: " + path);
     }
 
-    private void onReadFilePermissionDenied(){
+    private void onReadFilePermissionDenied(String[] deniedPermissions){
         Log.e("ASD", "NUOOOOOOOOOOOOOOOOOOO");
     }
 
 
     @RequiresPermissions(requestCode = 1, required = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
-        if(Permissions.askPermissions(1, this, this::asd, this::asd)) return;
+        if(Permissions.askPermissions(1, this, this::asd, this::onReadFilePermissionDenied)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 3, required = {"jhjj"}, optional = "")
     private void asd2(){
-        if(Permissions.askPermissions(3, this,  this::asd2, this::asd2)) return;
+        if(Permissions.askPermissions(3, this,  this::asd2, this::onReadFilePermissionDenied)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
