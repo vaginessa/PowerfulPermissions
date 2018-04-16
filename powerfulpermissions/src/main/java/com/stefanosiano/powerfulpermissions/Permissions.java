@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,20 @@ public class Permissions {
     }
 
 
-    public static boolean askPermissions(final int requestCode, final Activity activity, final Runnable onPermissionGranted, final PermissionDeniedListener onPermissionDenied){
+
+    public static boolean askPermissions(final int requestCode, final Activity activity, final int rationaleId, final Runnable onPermissionGranted){
+        return askPermissions(requestCode, activity, new SimpleShowRationaleListener(rationaleId), onPermissionGranted, new SimpleOnPermissionDeniedListener());
+    }
+
+    public static boolean askPermissions(final int requestCode, final Activity activity, final int rationaleId, final Runnable onPermissionGranted, final PermissionDeniedListener onPermissionDenied){
+        return askPermissions(requestCode, activity, new SimpleShowRationaleListener(rationaleId), onPermissionGranted, onPermissionDenied);
+    }
+
+    public static boolean askPermissions(final int requestCode, final Activity activity, final ShowRationaleListener showRationaleListener, final Runnable onPermissionGranted){
+        return askPermissions(requestCode, activity, showRationaleListener, onPermissionGranted, new SimpleOnPermissionDeniedListener());
+    }
+
+    public static boolean askPermissions(final int requestCode, final Activity activity, final ShowRationaleListener showRationaleListener, final Runnable onPermissionGranted, final PermissionDeniedListener onPermissionDenied){
 
         final PermMapping permMapping = permissionMap.get(requestCode);
 
@@ -70,7 +84,7 @@ public class Permissions {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     permissionsToAsk.addAll(permissionsToRationale);
-                    requestPermission(activity, listToArray(permissionsToAsk), permMapping, onPermissionGranted, onPermissionDenied);
+                    requestPermission(activity, listToArray(permissionsToAsk), permMapping, onPermissionGranted, onPermissionDenied, showRationaleListener);
                 }
             });
             rationaleDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {@Override public void onClick(DialogInterface dialog, int which) {}});
@@ -78,7 +92,7 @@ public class Permissions {
             return true;
         }
         if(permissionsToAsk.size() > 0) {
-            requestPermission(activity, listToArray(permissionsToAsk), permMapping, onPermissionGranted, onPermissionDenied);
+            requestPermission(activity, listToArray(permissionsToAsk), permMapping, onPermissionGranted, onPermissionDenied, showRationaleListener);
             return true;
         }
 
@@ -86,8 +100,9 @@ public class Permissions {
     }
 
 
-    private static void requestPermission(Activity activity, String[] permissions, PermMapping permMapping, final Runnable onPermissionGranted, final PermissionDeniedListener onPermissionDenied){
-        helperArray.put(permMapping.requestCode, new PermissionHelper(permMapping, onPermissionGranted, onPermissionDenied));
+    private static void requestPermission(Activity activity, String[] permissions, PermMapping permMapping, final Runnable onPermissionGranted, final PermissionDeniedListener onPermissionDenied,
+                                          final ShowRationaleListener showRationaleListener){
+        helperArray.put(permMapping.requestCode, new PermissionHelper(permMapping, onPermissionGranted, onPermissionDenied, showRationaleListener));
         ActivityCompat.requestPermissions(activity, permissions, permMapping.methodId);
     }
 
@@ -106,6 +121,7 @@ public class Permissions {
         List<String> permOptional = Arrays.asList(permMapping.optionalPermissions);
 
         List<String> deniedPermissions = new ArrayList<>();
+        List<String> rationalePermissions = new ArrayList<>();
 
         for (int i = 0; i < permissions.length; i++) {
             String permission = permissions[i];
@@ -119,9 +135,11 @@ public class Permissions {
                     if (showRationale) {
                         // user did NOT check "never ask again": explain why you need the permission and ask if user wants to accept it
                         shouldShowRationale = true;
+                        rationalePermissions.add(permission);
                     } else {
                         // user also CHECKED "never ask again": open another dialog explaining again the permission and directing to the app setting
                         shouldRunDenied = true;
+                        deniedPermissions.add(permission);
                     }
                 }
 
@@ -132,6 +150,7 @@ public class Permissions {
                     if (showRationale) {
                         // user did NOT check "never ask again": explain why you need the permission and ask if user wants to accept it
                         shouldShowRationale = true;
+                        rationalePermissions.add(permission);
                     } else {
                         // user also CHECKED "never ask again", but permission is optional, so function can be called anyway
                     }
@@ -139,12 +158,13 @@ public class Permissions {
             }
         }
 
+        deniedPermissions.addAll(rationalePermissions);
         if(shouldRunDenied) {
             permissionHelper.onPermissionDenied.onPermissionsDenied(listToArray(deniedPermissions));
             return true;
         }
         if(shouldShowRationale) {
-            permissionHelper.onShowRationale.onShowRationale(listToArray(deniedPermissions));
+            permissionHelper.onShowRationale.onShowRationale(listToArray(rationalePermissions));
             return true;
         }
 
