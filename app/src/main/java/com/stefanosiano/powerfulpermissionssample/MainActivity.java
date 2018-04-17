@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 2, required = Manifest.permission.READ_EXTERNAL_STORAGE)
     private void readFile(String path){
-        if(Permissions.askPermissions(2, this, ()->readFile(path), this::onReadFilePermissionDenied)) return;
+        if(Permissions.askPermissions(2, this, R.string.app_name, ()->readFile(path), this::onReadFilePermissionDenied)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: " + path);
     }
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 1, required = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
-        if(Permissions.askPermissions(1, this, this::asd, this::onReadFilePermissionDenied)) return;
+        if(Permissions.askPermissions(1, this, R.string.app_name, this::asd, this::onReadFilePermissionDenied)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 3, required = {"jhjj"}, optional = "")
     private void asd2(){
-        if(Permissions.askPermissions(3, this,  this::asd2, this::onReadFilePermissionDenied)) return;
+        if(Permissions.askPermissions(3, this, (permissions -> {}), this::asd2)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }

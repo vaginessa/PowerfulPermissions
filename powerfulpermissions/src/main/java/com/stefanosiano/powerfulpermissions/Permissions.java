@@ -12,6 +12,9 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
+import com.stefanosiano.powerfulpermissions.simpleListeners.SimpleOnPermissionDeniedListener;
+import com.stefanosiano.powerfulpermissions.simpleListeners.SimpleShowRationaleListener;
+
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
