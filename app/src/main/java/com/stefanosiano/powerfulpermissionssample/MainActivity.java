@@ -12,7 +12,8 @@ import com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String[] p = {Manifest.permission.ACCESS_CHECKIN_PROPERTIES, Manifest.permission.ACCESS_FINE_LOCATION};
+    public static final String[] p = new String[]{Manifest.permission.ACCESS_CHECKIN_PROPERTIES, Manifest.permission.ACCESS_FINE_LOCATION};
+    public static final String p2 = Manifest.permission.ACCESS_CHECKIN_PROPERTIES;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +24,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @RequiresPermissions(requestCode = 2, required = Manifest.permission.READ_EXTERNAL_STORAGE)
+    @RequiresPermissions(requestCode = 2, required = p)
     private void readFile(String path){
-        if(Permissions.askPermissions(2, this, R.string.app_name, ()->readFile(path), this::onReadFilePermissionDenied)) return;
+
+        if(Permissions.with(2, this).askPermissions(p, R.string.app_name, () -> readFile(path))) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: " + path);
     }
