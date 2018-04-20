@@ -24,6 +24,8 @@ public class PermissionsHelper {
     private final WeakReference<Activity> activityReference;
     private String[] optionalPermissions;
     private Permissions.PermissionDeniedListener onPermissionDenied;
+    private Permissions.ShowRationaleListener showRationaleListener;
+    private Runnable onGranted;
 
 
     static void init(Context appContext){
@@ -52,6 +54,9 @@ public class PermissionsHelper {
     }
 
     public boolean askPermissions(String[] permissions, final Permissions.ShowRationaleListener showRationaleListener, final Runnable onPermissionGranted) {
+
+        this.showRationaleListener = showRationaleListener;
+        this.onGranted = onPermissionGranted;
 
         final Activity activity = activityReference.get();
         if(activity == null)
@@ -95,8 +100,7 @@ public class PermissionsHelper {
         boolean shouldShowRationale = false;
         boolean shouldRunDenied = false;
 
-        List<String> permRequested = Arrays.asList(permMapping.permissions);
-        List<String> permOptional = Arrays.asList(permMapping.optionalPermissions);
+        List<String> permOptional = Arrays.asList(optionalPermissions);
 
         List<String> deniedPermissions = new ArrayList<>();
         List<String> rationalePermissions = new ArrayList<>();
@@ -106,9 +110,20 @@ public class PermissionsHelper {
             if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                 // user rejected the permission
 
-                //permission is needed
-                if (permRequested.contains(permission)) {
+                //permission is optional
+                if (permOptional.contains(permission)) {
 
+                    boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
+                    if (showRationale) {
+                        // user did NOT check "never ask again": explain why you need the permission and ask if user wants to accept it
+                        shouldShowRationale = true;
+                        rationalePermissions.add(permission);
+                    } else {
+                        // user also CHECKED "never ask again", but permission is optional, so function can be called anyway
+                    }
+                }
+                //permission is needed
+                else {
                     boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
                     if (showRationale) {
                         // user did NOT check "never ask again": explain why you need the permission and ask if user wants to accept it
@@ -120,33 +135,20 @@ public class PermissionsHelper {
                         deniedPermissions.add(permission);
                     }
                 }
-
-                //permission is optional
-                else if (permOptional.contains(permission)) {
-
-                    boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
-                    if (showRationale) {
-                        // user did NOT check "never ask again": explain why you need the permission and ask if user wants to accept it
-                        shouldShowRationale = true;
-                        rationalePermissions.add(permission);
-                    } else {
-                        // user also CHECKED "never ask again", but permission is optional, so function can be called anyway
-                    }
-                }
             }
         }
 
         deniedPermissions.addAll(rationalePermissions);
         if (shouldRunDenied) {
-            permissionHelper.onPermissionDenied.onPermissionsDenied(listToArray(deniedPermissions));
+            onPermissionDenied.onPermissionsDenied(listToArray(deniedPermissions));
             return true;
         }
         if (shouldShowRationale) {
-            permissionHelper.onShowRationale.onShowRationale(listToArray(rationalePermissions));
+            showRationaleListener.onShowRationale(listToArray(rationalePermissions), activity, requestCode);
             return true;
         }
 
-        permissionHelper.onPermissionGranted.run();
+        onGranted.run();
         return true;
     }
 
