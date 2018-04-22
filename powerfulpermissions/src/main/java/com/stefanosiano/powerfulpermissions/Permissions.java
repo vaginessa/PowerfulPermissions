@@ -32,20 +32,22 @@ public class Permissions {
     public static void init(Application application) {
         appContext = application.getApplicationContext();
         PermissionsHelper.init(appContext);
-        permissionMap.clear();
+        permissionHelperMap.clear();
+        /*
         try {
             Class<?> permissionPPClass = Class.forName("com.stefanosiano.powerfulpermissions.Permissions$$PowerfulPermission");
             permissionPPClass.getDeclaredMethod("init", SparseArray.class).invoke(null, permissionMap);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Unable to initialize the activity-permissions mapping: " + e.getLocalizedMessage());
-        }
+        }*/
     }
 
 
-    public static PermissionsHelper with(int requestCode, Activity activity) {
+    public static PermissionsHelper with(Activity activity, int requestCode) {
         String key = requestCode+activity.getClass().getName();
-        if(permissionHelperMap.get(key) == null) permissionHelperMap.put(key, new PermissionsHelper(requestCode));
+        permissionHelperMap.remove(key);
+        permissionHelperMap.put(key, new PermissionsHelper(requestCode, activity));
         return permissionHelperMap.get(key);
     }
 
@@ -55,6 +57,7 @@ public class Permissions {
         if(permissionsHelper == null)
             return false;
 
+        permissionHelperMap.remove(key);
         return permissionsHelper.onRequestPermissionsResult(activity, permissions, grantResults);
     }
 

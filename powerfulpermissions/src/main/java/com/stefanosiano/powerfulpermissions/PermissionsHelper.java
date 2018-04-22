@@ -62,6 +62,9 @@ public class PermissionsHelper {
         if(activity == null)
             return true;
 
+        //it should never happen, but it's better to be sure
+        if(onPermissionDenied == null) onPermissionDenied = new SimpleOnPermissionDeniedListener();
+
         final List<String> permissionsToAsk = new ArrayList<>();
         final List<String> permissionsToRationale = new ArrayList<>();
 
@@ -95,12 +98,12 @@ public class PermissionsHelper {
 
 
 
-    public boolean onRequestPermissionsResult(Activity activity, String[] permissions, int[] grantResults) {
+    boolean onRequestPermissionsResult(Activity activity, String[] permissions, int[] grantResults) {
 
         boolean shouldShowRationale = false;
         boolean shouldRunDenied = false;
 
-        List<String> permOptional = Arrays.asList(optionalPermissions);
+        List<String> permOptional = optionalPermissions == null ? new ArrayList<String>() : Arrays.asList(optionalPermissions);
 
         List<String> deniedPermissions = new ArrayList<>();
         List<String> rationalePermissions = new ArrayList<>();

@@ -12,7 +12,7 @@ import com.stefanosiano.powerfulpermissions.annotation.RequiresPermissions;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String[] p = new String[]{Manifest.permission.ACCESS_CHECKIN_PROPERTIES, Manifest.permission.ACCESS_FINE_LOCATION};
+    public static final String[] p = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     public static final String p2 = Manifest.permission.ACCESS_CHECKIN_PROPERTIES;
 
     @Override
@@ -24,10 +24,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @RequiresPermissions(requestCode = 2, required = p)
+//    @RequiresPermissions(requestCode = 2, required = p)
     private void readFile(String path){
 
-        if(Permissions.with(2, this).askPermissions(p, R.string.app_name, () -> readFile(path))) return;
+        if(Permissions.with(this, 2)
+                .onDenied(this::onReadFilePermissionDenied)
+                .askPermissions(p, R.string.app_name, () -> readFile(path))) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: " + path);
     }
@@ -39,7 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 1, required = Manifest.permission.ACCESS_COARSE_LOCATION)
     private void asd(){
-        if(Permissions.askPermissions(1, this, R.string.app_name, this::asd, this::onReadFilePermissionDenied)) return;
+        if(Permissions.with(this, 2)
+                .onDenied(this::onReadFilePermissionDenied)
+                .askPermissions(p, R.string.app_name, this::asd))
+            return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresPermissions(requestCode = 3, required = {"jhjj"}, optional = "")
     private void asd2(){
-        if(Permissions.askPermissions(3, this, (permissions -> {}), this::asd2)) return;
+//        if(Permissions.askPermissions(3, this, (permissions -> {}), this::asd2)) return;
 
         Log.e("ASD", "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
@@ -55,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Permissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+        if(Permissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults)) return;
     }
 
     /*
