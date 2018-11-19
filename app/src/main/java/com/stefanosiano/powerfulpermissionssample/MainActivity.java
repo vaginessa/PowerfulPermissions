@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 //    @RequiresPermissions(requestCode = 2, required = p)
     private void readFile(String path){
 
-        if(Permissions.with(this, 2)
+        if(Permissions.INSTANCE.with(this, 2)
                 .onDenied(this::onReadFilePermissionDenied)
                 .askPermissions(p, R.string.app_name, () -> readFile(path))) return;
 
