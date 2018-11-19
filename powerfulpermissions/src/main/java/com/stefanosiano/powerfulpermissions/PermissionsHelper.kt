@@ -30,10 +30,6 @@ object Permissions {
     }
 
 
-    interface PermissionDeniedListener {
-        fun onPermissionsDenied(permissions: Array<String>)
-    }
-
 
     interface ShowRationaleListener {
         fun onShowRationale(permissions: Array<String>, activity: Activity, requestCode: Int)
@@ -46,7 +42,7 @@ class PermissionsHelper internal constructor(private val requestCode: Int, activ
 
     private val activityReference = WeakReference(activity)
     private var optionalPermissions: Array<String>? = null
-    private var onPermissionDenied: Permissions.PermissionDeniedListener = SimpleOnPermissionDeniedListener()
+    private var onPermissionDenied: (perms: Array<String>) -> Unit = {  }
     private var showRationaleListener: Permissions.ShowRationaleListener = object : Permissions.ShowRationaleListener { override fun onShowRationale(permissions: Array<String>, activity: Activity, requestCode: Int){}}
     private var onGranted: () -> Unit = {  }
 
@@ -56,7 +52,7 @@ class PermissionsHelper internal constructor(private val requestCode: Int, activ
         return this
     }
 
-    fun onDenied(onPermissionDenied: Permissions.PermissionDeniedListener): PermissionsHelper {
+    fun onDenied(onPermissionDenied: (perms: Array<String>) -> Unit): PermissionsHelper {
         this.onPermissionDenied = onPermissionDenied
         return this
     }
@@ -138,7 +134,7 @@ class PermissionsHelper internal constructor(private val requestCode: Int, activ
         deniedPermissions.addAll(rationalePermissions)
 
         if (shouldRunDenied) {
-            onPermissionDenied.onPermissionsDenied(deniedPermissions.toTypedArray())
+            onPermissionDenied.invoke(deniedPermissions.toTypedArray())
             return true
         }
         if (shouldShowRationale) {
